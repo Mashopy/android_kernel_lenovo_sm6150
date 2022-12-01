@@ -14,7 +14,12 @@
 #define _CAM_SENSOR_CORE_H_
 
 #include "cam_sensor_dev.h"
-
+/* Huaqin add for JD2020-255 by likai at 2019/1/30 start*/
+#define REAR_SENSOR_ID	 0x0576//imx576
+#define REAR_AUX1_SENSOR_ID    0X885A//ov8856
+#define REAR_AUX2_SENSOR_ID    0X559b//s5k5e9
+#define FRONT_SENSOR_ID  0x3109//s5k3p9
+/* Huaqin add for JD2020-255   by likai at 2019/1/30 end*/
 /**
  * @s_ctrl: Sensor ctrl structure
  *

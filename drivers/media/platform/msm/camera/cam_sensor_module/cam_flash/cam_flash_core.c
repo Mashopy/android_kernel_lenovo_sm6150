@@ -445,8 +445,8 @@ static int cam_flash_ops(struct cam_flash_ctrl *flash_ctrl,
 				else
 					curr = max_current;
 			}
-			CAM_DBG(CAM_FLASH, "Led_Torch[%d]: Current: %d",
-				i, curr);
+			CAM_DBG(CAM_FLASH, "Led_Torch[%d]: max_current: %d, Current: %d",
+				i, max_current, curr);
 			cam_res_mgr_led_trigger_event(
 				flash_ctrl->torch_trigger[i], curr);
 		}
@@ -456,12 +456,12 @@ static int cam_flash_ops(struct cam_flash_ctrl *flash_ctrl,
 				max_current = soc_private->flash_max_current[i];
 				if (flash_data->led_current_ma[i] <=
 					max_current)
-					curr = flash_data->led_current_ma[i];
+					curr = 1000;//flash_data->led_current_ma[i];
 				else
 					curr = max_current;
 			}
-			CAM_DBG(CAM_FLASH, "LED_Flash[%d]: Current: %d",
-				i, curr);
+			CAM_DBG(CAM_FLASH, "LED_Flash[%d]: max_current: %d, tuning set current: %d, final Current: %d",
+				i, max_current, flash_data->led_current_ma[i], curr);
 			cam_res_mgr_led_trigger_event(
 				flash_ctrl->flash_trigger[i], curr);
 		}

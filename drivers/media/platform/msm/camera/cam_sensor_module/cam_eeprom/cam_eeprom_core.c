@@ -1,4 +1,4 @@
-/* Copyright (c) 2017-2019, The Linux Foundation. All rights reserved.
+/* Copyright (c) 2017-2018, The Linux Foundation. All rights reserved.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2 and
@@ -63,6 +63,9 @@ static int cam_eeprom_read_memory(struct cam_eeprom_ctrl_t *e_ctrl,
 		if (emap[j].page.valid_size) {
 			i2c_reg_settings.addr_type = emap[j].page.addr_type;
 			i2c_reg_settings.data_type = emap[j].page.data_type;
+			//Huaqin add for jd20 s5k5e9 eeprom delay  by huangjiwu at 2019/2/17 start
+			i2c_reg_settings.delay = emap[j].page.delay;
+			//Huaqin add for jd20 s5k5e9 eeprom delay by huangjiwu at 2019/2/17 start
 			i2c_reg_settings.size = 1;
 			i2c_reg_array.reg_addr = emap[j].page.addr;
 			i2c_reg_array.reg_data = emap[j].page.data;
@@ -912,7 +915,7 @@ error:
 	vfree(e_ctrl->cal_data.map);
 	e_ctrl->cal_data.num_data = 0;
 	e_ctrl->cal_data.num_map = 0;
-	e_ctrl->cam_eeprom_state = CAM_EEPROM_ACQUIRE;
+	e_ctrl->cam_eeprom_state = CAM_EEPROM_INIT;
 release_buf:
 	if (cam_mem_put_cpu_buf(dev_config.packet_handle))
 		CAM_WARN(CAM_EEPROM, "Put cpu buffer failed : 0x%x",

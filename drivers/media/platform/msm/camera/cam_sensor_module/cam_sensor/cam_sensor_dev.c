@@ -14,7 +14,59 @@
 #include "cam_req_mgr_dev.h"
 #include "cam_sensor_soc.h"
 #include "cam_sensor_core.h"
+/* Huaqin add for JD2020-255 by likai at 2019/1/30 start*/
+#undef CAM_MODULE_INFO_CONFIG
+#define CAM_MODULE_INFO_CONFIG 1
 
+#if CAM_MODULE_INFO_CONFIG
+#include <linux/proc_fs.h>
+#include <linux/kernel.h>
+#include <linux/string.h>
+#include <linux/uaccess.h>
+#include <linux/slab.h>
+#endif
+
+#if CAM_MODULE_INFO_CONFIG
+ char *cameraModuleInfo[4] = {NULL, NULL, NULL,NULL};
+
+#define CAM_MODULE_INFO "cameraModuleInfo"
+
+static struct proc_dir_entry *proc_entry;
+
+static ssize_t cameraModuleInfo_read
+	(struct file *file, char __user *page, size_t size, loff_t *ppos)
+{
+	char buf[150] = {0};
+
+	int rc = 0;
+
+	snprintf(buf, 150,
+			"rear camera:%s\nrear aux1 camera:%s\nrear aux2 camera:%s\nfront camera:%s\n",
+			cameraModuleInfo[0],
+			cameraModuleInfo[1],
+			cameraModuleInfo[2],
+			cameraModuleInfo[3]);
+
+	rc = simple_read_from_buffer(page, size, ppos, buf, strlen(buf));
+
+	return rc;
+}
+
+static ssize_t cameraModuleInfo_write
+	(struct file *filp, const char __user *buffer,
+	size_t count, loff_t *off)
+{
+	return 0;
+}
+
+static const struct file_operations cameraModuleInfo_fops = {
+	.owner = THIS_MODULE,
+	.read = cameraModuleInfo_read,
+	.write = cameraModuleInfo_write,
+};
+#endif
+
+/* Huaqin add for JD2020-255 by likai at 2019/1/30 end*/
 static long cam_sensor_subdev_ioctl(struct v4l2_subdev *sd,
 	unsigned int cmd, void *arg)
 {
@@ -387,7 +439,18 @@ static int __init cam_sensor_driver_init(void)
 	rc = i2c_add_driver(&cam_sensor_driver_i2c);
 	if (rc)
 		CAM_ERR(CAM_SENSOR, "i2c_add_driver failed rc = %d", rc);
+	/* Huaqin add for JD2020-255 by likai at 2019/1/30 start*/
+	#if CAM_MODULE_INFO_CONFIG
+		proc_entry = proc_create(CAM_MODULE_INFO,
+								0664, NULL,
+								&cameraModuleInfo_fops);
 
+		if (NULL == proc_entry) {
+			pr_err("Create proc/cameraModuleInfo failed\n");
+			remove_proc_entry(CAM_MODULE_INFO, NULL);
+		}
+	#endif
+	/* Huaqin add for JD2020-255 by likai at 2019/1/30 end*/
 	return rc;
 }
 
@@ -395,6 +458,11 @@ static void __exit cam_sensor_driver_exit(void)
 {
 	platform_driver_unregister(&cam_sensor_platform_driver);
 	i2c_del_driver(&cam_sensor_driver_i2c);
+	/* Huaqin add for JD2020-255 by likai at 2019/1/30 start*/
+	#if CAM_MODULE_INFO_CONFIG
+	remove_proc_entry(CAM_MODULE_INFO, NULL);
+	#endif
+	/* Huaqin add for JD2020-255 by likai at 2019/1/30 end*/
 }
 
 module_init(cam_sensor_driver_init);
